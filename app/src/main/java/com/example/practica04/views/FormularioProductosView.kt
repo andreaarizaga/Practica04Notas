@@ -79,6 +79,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asAndroidBitmap
 import com.example.practica04.ui.theme.PurpleGrey40
+import com.example.practica04.ui.theme.backg
+import com.example.practica04.ui.theme.bglightmaroon
 import com.example.practica04.ui.theme.colortxt
 import java.io.ByteArrayOutputStream
 
@@ -150,7 +152,7 @@ fun campoTitulo(
         label = { Text(text = label) },
         keyboardOptions = keyboardOptions,
         modifier = modifier
-            .fillMaxWidth()
+            .width(400.dp)
             .height(if (textArea) 200.dp else 80.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -158,7 +160,7 @@ fun campoTitulo(
             focusedLabelColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
             unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent
+            focusedContainerColor = backg
         ),
         textStyle = TextStyle(
             color = MaterialTheme.colorScheme.onSurface,
@@ -177,7 +179,7 @@ fun textoNota(
     textArea: Boolean = false,
     icono: Int = 0,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.Transparent
+    backgroundColor: Color = Color.Transparent // Aquí se pasa el color de fondo
 ) {
     OutlinedTextField(
         value = value,
@@ -185,15 +187,15 @@ fun textoNota(
         label = { Text(text = label) },
         keyboardOptions = keyboardOptions,
         modifier = modifier
-            .fillMaxWidth()
-            .height(if (textArea) 200.dp else 400.dp),
+            .width(400.dp)
+            .height(if (textArea) 200.dp else 400.dp), // Ajusta el alto dependiendo de si es un área de texto
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
             focusedLabelColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedContainerColor = backgroundColor,
-            focusedContainerColor = backgroundColor
+            unfocusedContainerColor = backgroundColor, // Color de fondo cuando no está enfocado
+            focusedContainerColor = backgroundColor // Color de fondo cuando está enfocado
         ),
         textStyle = TextStyle(
             color = MaterialTheme.colorScheme.onSurface,
@@ -202,6 +204,7 @@ fun textoNota(
         shape = RoundedCornerShape(15.dp)
     )
 }
+
 
 @Composable
 fun ColorPickers(selectedColor: Color, onColorSelected: (Color) -> Unit) {
@@ -270,6 +273,7 @@ fun Formulario(
                 value = name,
                 icono = R.color.pastel,
                 onValueChange = { name = it }
+
             )
 
             textoNota(
@@ -277,7 +281,7 @@ fun Formulario(
                 value = description,
                 icono = R.color.pastel,
                 onValueChange = { description = it },
-                backgroundColor = selectedColor
+                backgroundColor = selectedColor,
             )
 
             Spacer(modifier = Modifier.weight(1f))

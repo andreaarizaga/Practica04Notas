@@ -47,10 +47,15 @@ import com.example.practica04.viewmodels.ProductoViewModel
 import android.util.Base64
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.sp
 import com.example.practica04.dialog.AlertaVacio
+import com.example.practica04.ui.theme.bglightmaroon
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,96 +67,144 @@ fun EditarProductoView(
     modifier: Modifier = Modifier
 ) {
     val producto = viewModel.getProductById(productId)
+    var name by remember { mutableStateOf(producto?.nombre ?: "") }
+    var description by remember { mutableStateOf(producto?.descripcion ?: "") }
     val initialColor = producto?.color?.let { Color(android.graphics.Color.parseColor(it)) } ?: Color.White
-    var backgroundColor by remember { mutableStateOf(initialColor) }
+    var selectedColor by remember { mutableStateOf(initialColor) }
     var backgroundImage by remember { mutableStateOf(producto?.imagen ?: "") }
     var useImageBackground by remember { mutableStateOf(backgroundImage.isNotBlank()) }
 
     Scaffold(
         topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xC3F06997), // Naranja cálido
+                                Color(0xFFC887E0)  // Amarillo suave
+                            )
+                        )
+                    )
+            )
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 title = {
                     Text(
-                        text = "Editar",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
+                        text = "Editar Nota",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 30.sp,
+                            letterSpacing = 1.5.sp
+                        ),
+                        color = bglightmaroon
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Volver")
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Regresar",
+                            modifier = Modifier
+                                .size(30.dp), // Tamaño del ícono
+                            tint = bglightmaroon
+                        )
                     }
                 },
             )
-        }
+        },
     ) { innerPadding ->
-        Box(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = modifier
                 .fillMaxSize()
-
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-
-            if (useImageBackground && backgroundImage.isNotBlank()) {
-                val imageBytes = Base64.decode(backgroundImage, Base64.DEFAULT)
-                val imageBitmap = imageBytes.inputStream().use { BitmapFactory.decodeStream(it) }.asImageBitmap()
-
-                Image(
-                    bitmap = imageBitmap,
-                    contentDescription = "Imagen del fondo",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .align(Alignment.Center)
-                        .alpha(0.5f),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-
-                Box(modifier = Modifier.fillMaxSize().background(backgroundColor))
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
+            Spacer(modifier = Modifier.height(5.dp)) // Agrega espacio aquí
+            // Título y descripción del producto
+            campoTitulo(
+                label = "Título",
+                value = name,
+                icono = R.color.pastel,
+                onValueChange = { name = it },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(8.dp)
+                    .width(390.dp)
+                    .height(80.dp)
+            )
+
+            textoNota(
+                label = "Contenido",
+                value = description,
+                icono = R.color.pastel,
+                onValueChange = { description = it },
+                backgroundColor = selectedColor,
+                modifier = Modifier
+                    .width(390.dp)
+                    .height(400.dp)
+            )
+
+            // Cambiar color de la nota
+            Card(
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(90.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0x5CCF99CF))
             ) {
-                FormularioEditar(
-                    producto = producto,
-                    viewModel = viewModel,
-                    navController = navController,
-                    selectedColor = backgroundColor,
-                    onColorChanged = { newColor ->
-                        backgroundColor = newColor
-                    },
-                    backgroundImage = backgroundImage,
-                    onImageSelected = { newImage ->
-                        backgroundImage = newImage
-                    },
-                    useImageBackground = useImageBackground,
-                    onBackgroundOptionChanged = { useImage ->
-                        useImageBackground = useImage
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text("Defina el color de nota:")
+                        ColorPickers(selectedColor = selectedColor) { color ->
+                            selectedColor = color
+                        }
                     }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (!useImageBackground) {
-
                 }
             }
-        }
 
+
+
+            // Botón para actualizar el producto
+            Button(
+                onClick = {
+                    if (name.isBlank() || description.isBlank()) {
+                        // Aquí puedes mostrar un mensaje de error
+                    } else {
+                        viewModel.updateProduct(
+                            Producto(
+                                id = producto?.id ?: 0,
+                                nombre = name,
+                                descripcion = description,
+                                color = String.format("#%06X", 0xFFFFFF and selectedColor.toArgb()),
+                                imagen = if (useImageBackground) backgroundImage else ""
+                            )
+                        )
+                        navController.popBackStack()
+                    }
+                },
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(60.dp)
+            ) {
+                Text("Actualizar Nota", fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,7 +226,6 @@ fun FormularioEditar(
     var selectedColorInternal by remember { mutableStateOf(selectedColor) }
     var errorMsg by remember { mutableStateOf("") }
     var showErrorDialog by remember { mutableStateOf(false) }
-    var showImagePickerDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedColor) {
         selectedColorInternal = selectedColor
@@ -190,14 +242,6 @@ fun FormularioEditar(
         campoTitulo(label = "Título", value = name, icono = R.color.pastel, onValueChange = { name = it })
         textoNota(label = "Contenido", value = description, icono = R.color.pastel, onValueChange = { description = it })
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Usar fondo de imagen", style = MaterialTheme.typography.bodyMedium)
-            Switch(
-                checked = useImageBackground,
-                onCheckedChange = { onBackgroundOptionChanged(it) }
-            )
-        }
-
         if (!useImageBackground) {
             Text(text = "Color de la nota", style = MaterialTheme.typography.bodyMedium)
             ColorPickers(selectedColor = selectedColorInternal) { newColor ->
@@ -206,10 +250,9 @@ fun FormularioEditar(
                 onColorChanged(newColor)
             }
         } else {
-
             Text("Selecciona una imagen:")
             Button(
-                onClick = { showImagePickerDialog = true },
+                onClick = { /* Logic for image picker */ },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Cargar Imagen")
@@ -218,41 +261,28 @@ fun FormularioEditar(
 
         Button(
             onClick = {
-                if (producto != null) {
-                    if (name.isBlank() && description.isBlank()) {
-                        errorMsg = "Favor poner un titulo y contenido"
-                        showErrorDialog = true
-                    }
-                    else if(name.isBlank()){
-                        errorMsg = "Favor poner un título"
-                        showErrorDialog = true
-                    }
-                    else if(description.isBlank()){
-                        errorMsg = "Favor poner un contenido"
-                        showErrorDialog = true
-                    }
-                    else{
-                        try {
-                            val colorHex = String.format("#%06X", 0xFFFFFF and selectedColorInternal.toArgb())
-
-
-                            val updatedImage = if (!useImageBackground) "" else backgroundImage
-
-
-                            viewModel.updateProduct(Producto(id = producto.id, nombre = name, descripcion = description, color = colorHex, imagen = updatedImage))
-
-
-                            navController.popBackStack()
-                        } catch (e: Exception) {
-                            errorMsg = "Error al actualizar la nota"
-                            showErrorDialog = true
-                        }
-
-                    }
-
-                } else {
-                    errorMsg = "Nota no encontrada"
+                if (name.isBlank() || description.isBlank()) {
+                    errorMsg = "Favor poner un título y contenido"
                     showErrorDialog = true
+                } else {
+                    try {
+                        val colorHex = String.format("#%06X", 0xFFFFFF and selectedColorInternal.toArgb())
+                        val updatedImage = if (!useImageBackground) "" else backgroundImage
+
+                        viewModel.updateProduct(
+                            Producto(
+                                id = producto?.id ?: 0,
+                                nombre = name,
+                                descripcion = description,
+                                color = colorHex,
+                                imagen = updatedImage
+                            )
+                        )
+                        navController.popBackStack()
+                    } catch (e: Exception) {
+                        errorMsg = "Error al actualizar la nota"
+                        showErrorDialog = true
+                    }
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -265,44 +295,19 @@ fun FormularioEditar(
                 contentDescription = "Actualizar Nota",
                 modifier = Modifier.size(20.dp)
             )
-            Spacer(modifier = Modifier.width(8.dp)) to
-                    Text("Actualizar Nota")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Actualizar Nota")
         }
-
-
     }
 
     if (showErrorDialog) {
         AlertaVacio(
             dialogTitle = "Error",
             dialogText = errorMsg,
-            onDismissRequest = {
-                showErrorDialog = false
-            },
-            onConfirmation = {
-                showErrorDialog = false
-            },
+            onDismissRequest = { showErrorDialog = false },
+            onConfirmation = { showErrorDialog = false },
             show = showErrorDialog
         )
     }
-   /* if (showImagePickerDialog) {
-        AlertDialog(
-            onDismissRequest = { showImagePickerDialog = false },
-            title = { Text("Selecciona una imagen, No debe pesar mas de 3 MB") },
-            text = {
-                ImagePickers(onImageSelected = { bitmap ->
-
-                    showImagePickerDialog = false
-                })
-            },
-            confirmButton = {
-                Button(
-                    onClick = { showImagePickerDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Cancelar")
-                }
-            }
-        )
-    } */
 }
+
