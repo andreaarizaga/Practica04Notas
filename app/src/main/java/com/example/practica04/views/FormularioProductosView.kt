@@ -93,6 +93,20 @@ fun FormularioProductosView(navController: NavController, viewModel: ProductoVie
 
     Scaffold(
         topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xC3F06997), // Naranja cálido
+                                Color(0xFFC887E0)  // Amarillo suave
+                            )
+                        )
+                    )
+            )
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent,
@@ -101,9 +115,12 @@ fun FormularioProductosView(navController: NavController, viewModel: ProductoVie
                 title = {
                     Text(
                         text = "Nota",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 30.sp,
+                            letterSpacing = 1.5.sp
+                        ),
+                        color = bglightmaroon
                     )
                 },
                 navigationIcon = {
@@ -111,7 +128,9 @@ fun FormularioProductosView(navController: NavController, viewModel: ProductoVie
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Regresar",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    modifier = Modifier
+                                    .size(30.dp), // Tamaño del ícono
+                            tint = bglightmaroon
                         )
                     }
                 },
@@ -311,28 +330,47 @@ fun Formulario(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = {
-                    if (name.isBlank() && description.isBlank()) {
-                        // Mostramos un mensaje de error si no hay título ni contenido
-                    } else {
-                        viewModel.addProduct(
-                            Producto(
-                                nombre = name,
-                                descripcion = description,
-                                color = String.format("#%06X", 0xFFFFFF and selectedColor.toArgb())
-                            )
-                        )
-                        navController.popBackStack()
-                    }
-                },
+            Box(
                 modifier = Modifier
                     .width(250.dp)
                     .height(85.dp)
                     .padding(16.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xC3F06997), // Naranja cálido
+                                Color(0xFFC887E0)  // Amarillo suave
+                            )
+                        ),
+                        shape = RoundedCornerShape(12.dp) // Ajusta los bordes redondeados
+                    )
+                    .clickable {
+                        if (name.isBlank() && description.isBlank()) {
+                            // Mostramos un mensaje de error si no hay título ni contenido
+                        } else {
+                            viewModel.addProduct(
+                                Producto(
+                                    nombre = name,
+                                    descripcion = description,
+                                    color = String.format("#%06X", 0xFFFFFF and selectedColor.toArgb())
+                                )
+                            )
+                            navController.popBackStack()
+                        }
+                    }
             ) {
-                Text("Agregar Nota", fontWeight = FontWeight.SemiBold, color = Color.White)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        "Agregar Nota",
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
             }
+
         }
     }
 }

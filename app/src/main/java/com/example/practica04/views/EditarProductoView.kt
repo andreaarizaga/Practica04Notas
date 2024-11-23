@@ -45,7 +45,9 @@ import com.example.practica04.R
 import com.example.practica04.model.Producto
 import com.example.practica04.viewmodels.ProductoViewModel
 import android.util.Base64
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -178,29 +180,49 @@ fun EditarProductoView(
 
 
             // Botón para actualizar el producto
-            Button(
-                onClick = {
-                    if (name.isBlank() || description.isBlank()) {
-                        // Aquí puedes mostrar un mensaje de error
-                    } else {
-                        viewModel.updateProduct(
-                            Producto(
-                                id = producto?.id ?: 0,
-                                nombre = name,
-                                descripcion = description,
-                                color = String.format("#%06X", 0xFFFFFF and selectedColor.toArgb()),
-                                imagen = if (useImageBackground) backgroundImage else ""
-                            )
-                        )
-                        navController.popBackStack()
-                    }
-                },
+            Box(
                 modifier = Modifier
                     .width(250.dp)
-                    .height(60.dp)
+                    .height(85.dp)
+                    .padding(16.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xC3F06997), // Naranja cálido
+                                Color(0xFFC887E0)  // Amarillo suave
+                            )
+                        ),
+                        shape = RoundedCornerShape(12.dp) // Ajusta los bordes redondeados
+                    )
+                    .clickable {
+                        if (name.isBlank() || description.isBlank()) {
+                            // Aquí puedes mostrar un mensaje de error
+                        } else {
+                            viewModel.updateProduct(
+                                Producto(
+                                    id = producto?.id ?: 0,
+                                    nombre = name,
+                                    descripcion = description,
+                                    color = String.format("#%06X", 0xFFFFFF and selectedColor.toArgb()),
+                                    imagen = if (useImageBackground) backgroundImage else ""
+                                )
+                            )
+                            navController.popBackStack()
+                        }
+                    }
             ) {
-                Text("Actualizar Nota", fontWeight = FontWeight.Bold, color = Color.White)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        "Actualizar Nota",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
+
         }
     }
 }
