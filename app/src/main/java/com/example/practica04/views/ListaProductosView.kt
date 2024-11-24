@@ -72,6 +72,7 @@ import com.example.practica04.ui.theme.PurpleGrey40
 import com.example.practica04.ui.theme.PurpleGrey80
 import com.example.practica04.ui.theme.bglightmaroon
 import com.example.practica04.ui.theme.buttonp
+import com.example.practica04.ui.theme.containerhome
 import com.example.practica04.ui.theme.maroon
 import com.example.practica04.ui.theme.notebg
 import com.example.practica04.ui.theme.textp
@@ -184,7 +185,7 @@ fun ListaProductosView(viewModel: ProductoViewModel, navController: NavControlle
                             letterSpacing = 0.1.sp
                         ),
                         textAlign = TextAlign.Center,
-                        color = bglightmaroon
+                        color = containerhome
                     )
                 }
             } else {
